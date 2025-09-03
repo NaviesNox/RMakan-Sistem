@@ -32,7 +32,7 @@ table reservasion {
 table staff {
   id integer [primary key]
   name string
-  role enum ("admin", "waiter", "manager")
+  role enum ("admin", "waiter", "manager", "reservationStaff")
   phone string
 }
 
@@ -54,15 +54,11 @@ table feedback {
   created_at datetime
 }
 
-table reservationStaff {
-  id_reservation int
-  id_staff int
-}
+
 
 Ref : customer.id_customer < reservasion.id_customer
 Ref : Meja.id < reservasion.id_table
 Ref : customer.id_customer < feedback.id_customer
 Ref : reservasion.id < feedback.id_reservation
 Ref : payment.id_reservation < reservasion.id
-Ref : staff.id < reservationStaff.id_staff
-Ref : reservasion.id < reservationStaff.id_reservation
+

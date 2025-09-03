@@ -6,4 +6,4 @@
 | staff  | orang yang menghandle reservasi |
 | Payment | Metode pembayaran dari suatu reservasi |
 | Feedback | Ulasan dari customer untuk resto |
-| ReservationStaff | Staff yang ditugaskan didalam sebuah reservasi|
+
