@@ -66,11 +66,4 @@
 
 ---
 
-## ReservationStaff (Junction Table)
-| HTTP Method | URL Path                 | Kegunaan                            | Request Body                     | Expected Response                      | Butuh Auth |
-|-------------|-------------------------|-------------------------------------|-----------------------------------|----------------------------------------|------------|
-| GET         | /reservation-staff/{id_reservation}      | Lihat semua staff di reservasi tertentu | -               | `{  "id_reservation": 12, "staff": [ {  "id_staff": 3,  "name": "Budi", "role": "waiter" }, { "id_staff": 5, "name": "Ani", "role": "manager" } ] }`  | Yes        |
-| POST        | /reservation-staff      | Assign staff ke reservasi           | `{ "id_reservation": 12,"id_staff": 3}`        | `{ "message": "Staff assigned to reservation successfully", "reservation_staff": { "id_reservation": 12, "id_staff": 3}}`          | Yes        |
-| DELETE      | /reservation-staff/{id} | Hapus staff dari reservasi             | `{ "id_reservation": 12, "id_staff": 3}`                     |`{ "message": "Staff removed from reservation", "id_reservation": 12, "id_staff": 3}`      | Yes        |
-
 *styling/formating json dimarkdownd gimana dah (bertanya dengan nada kebingungan)
