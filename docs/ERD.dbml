@@ -23,6 +23,7 @@ table reservasion {
   id interger  [primary key]
   id_customer integer 
   id_table integer
+  id_staff integer
   reservation_time datetime 
   guest_count integer
   notes text 
@@ -61,4 +62,4 @@ Ref : Meja.id < reservasion.id_table
 Ref : customer.id_customer < feedback.id_customer
 Ref : reservasion.id < feedback.id_reservation
 Ref : payment.id_reservation < reservasion.id
-
+Ref : staff.id < reservasion.id_staff

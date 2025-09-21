@@ -6,7 +6,8 @@ Schema untuk entitas Reservation.
 
 from pydantic import BaseModel, Field
 from datetime import datetime
-from enum import Enum
+from enum import Enum  
+
 
 
 class ReservationStatusEnum(str, Enum):
@@ -19,11 +20,10 @@ class ReservationStatusEnum(str, Enum):
 class ReservationBase(BaseModel):
     """Schema dasar untuk Reservation"""
     id_customer: int = Field(..., description="ID Customer")
-    id_table: int = Field(..., description="ID Meja")
+    id_meja: int = Field(..., description="ID Meja")
     reservation_time: datetime
     guest_count: int = Field(..., gt=0)
     notes: str | None = None
-    status: ReservationStatusEnum = Field(..., description="Status reservasi")
 
 
 class ReservationCreate(ReservationBase):
@@ -33,17 +33,19 @@ class ReservationCreate(ReservationBase):
 
 class ReservationUpdate(BaseModel):
     """Schema untuk update reservasi"""
-    id_customer: int | None = None
-    id_table: int | None = None
+    id_meja: int | None = None
     reservation_time: datetime | None = None
     guest_count: int | None = None
     notes: str | None = None
     status: ReservationStatusEnum | None = None
+    id_staff: int | None = None  
 
 
 class ReservationResponse(ReservationBase):
     """Schema response reservasi dari DB"""
     id: int
+    status: ReservationStatusEnum
+    id_staff: int | None = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

@@ -14,9 +14,11 @@ class LocationEnum(str, Enum):
     vip = "vip"
 
 
+
 class StatusEnum(str, Enum):
     tersedia = "tersedia"
-    tidak_tersedia = "tidak tersedia"
+    tidaktersedia = "tidaktersedia"
+
 
 
 class MejaBase(BaseModel):
@@ -45,4 +47,4 @@ class MejaResponse(MejaBase):
     id: int
 
     class Config:
-        orm_mode = True
+          from_attributes = True

@@ -1,46 +1,57 @@
-from app.model.v1.meja.meja_schemas import MejaCreate, MejaUpdate, MejaResponse
+from sqlalchemy.orm import Session
+from app.model.v1.meja.meja_schemas import (         
+    MejaCreate,   
+    MejaUpdate,   
+)
+from models import Meja
 
-# Penyimpanan sementara (simulasi database)
-_meja_db: list[MejaResponse] = []
-_id_counter = 1
 
-""" Service functions untuk meja """
-def get_all_meja():
-    return _meja_db
+def get_all_meja(db: Session):
+    """Service functions untuk meja"""
+    return db.query(Meja).all()
 
-""" Helper function untuk mendapatkan meja berdasarkan ID """
-def get_meja_by_id(meja_id: int):
-    for meja in _meja_db:
-        if meja.id == meja_id:
-            return meja
-    return None
 
-""" Function untuk menambah meja baru  """
-def create_meja(meja: MejaCreate):
-    global _id_counter
-    new_meja = MejaResponse(id=_id_counter, **meja.model_dump())
-    _meja_db.append(new_meja)
-    _id_counter += 1
+def get_meja_by_id(db: Session, meja_id: int):
+    """Helper function untuk mendapatkan meja berdasarkan ID"""
+    return db.query(Meja).filter(Meja.id == meja_id).first()
+
+
+def create_meja(db: Session, meja: MejaCreate):
+    """Function untuk menambah meja baru"""
+    new_meja = Meja(**meja.model_dump())
+    db.add(new_meja)
+
+    """ check apakah table number yang diinput sudah ada atau belum, jika sudah ada maka return pesan "table number sudah ada" """
+    existing_meja = db.query(Meja).filter(Meja.table_number == meja.table_number).first()
+    if existing_meja:
+        raise ValueError("Table number sudah ada")
+
+    db.commit()
+    db.refresh(new_meja)
     return new_meja
 
-""" Function untuk mengupdate data meja   """
-def update_meja(meja_id: int, meja_update: MejaUpdate):
-    meja = get_meja_by_id(meja_id)
+
+def update_meja(db: Session, meja_id: int, meja_update: MejaUpdate):
+    """Function untuk mengupdate data meja"""
+    meja = get_meja_by_id(db, meja_id)
     if not meja:
         return None
-    """ Update fields yang diubah """
+
     update_data = meja_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(meja, key, value)
 
+    db.commit()
+    db.refresh(meja)
     return meja
 
-""" Function untuk menghapus meja """
-def delete_meja(meja_id: int):
-    global _meja_db
-    meja = get_meja_by_id(meja_id)
+
+def delete_meja(db: Session, meja_id: int):
+    """Function untuk menghapus meja"""
+    meja = get_meja_by_id(db, meja_id)
     if not meja:
         return None
 
-    _meja_db = [m for m in _meja_db if m.id != meja_id]
+    db.delete(meja)
+    db.commit()
     return meja

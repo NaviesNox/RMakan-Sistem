@@ -5,19 +5,24 @@ Schema untuk entitas Staff.
 """
 
 from pydantic import BaseModel, Field
-from enum import Enum
+from enum import Enum 
+
+
 
 
 class RoleEnum(str, Enum):
     admin = "admin"
     waiter = "waiter"
     manager = "manager"
-    reservation_staff = "reservationStaff"
+    reservationstaff = "reservationstaff"
+
 
 
 class StaffBase(BaseModel):
     """Schema dasar untuk Staff"""
     name: str = Field(..., example="Budi")
+    username: str 
+    password: str
     role: RoleEnum
     phone: str = Field(..., example="08123456789")
 
@@ -30,6 +35,8 @@ class StaffCreate(StaffBase):
 class StaffUpdate(BaseModel):
     """Schema untuk update data staff"""
     name: str | None = None
+    username: str | None = None
+    passsword: str | None = None
     role: RoleEnum | None = None
     phone: str | None = None
 
@@ -39,4 +46,5 @@ class StaffResponse(StaffBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+

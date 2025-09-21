@@ -9,10 +9,11 @@ from datetime import datetime
 from enum import Enum
 
 
+
 class PaymentMethodEnum(str, Enum):
     cash = "cash"
-    transfer_card = "tranfer/card"
-    e_wallet = "e-wallet"
+    card = "card"
+    e_wallet = "e_wallet"
 
 
 class PaymentStatusEnum(str, Enum):
@@ -49,4 +50,4 @@ class PaymentResponse(PaymentBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

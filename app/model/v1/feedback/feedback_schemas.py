@@ -6,23 +6,18 @@ Schema untuk entitas Feedback.
 
 from pydantic import BaseModel, Field
 from datetime import datetime
-from enum import Enum
 
 
-class RatingEnum(int, Enum):
-    satu = 1
-    dua = 2
-    tiga = 3
-    empat = 4
-    lima = 5
 
 
 class FeedbackBase(BaseModel):
     """Schema dasar untuk Feedback"""
-    id_customer: int
-    id_reservation: int
-    rating: RatingEnum
-    comment: str | None = None
+    id_customer: int = Field(..., description="ID customer yang memberikan feedback")
+    id_reservation: int = Field(..., description="ID reservasi terkait feedback")
+    rating: int = Field(..., ge=1, le=5, description="Rating (1-5)")
+    comment: str | None = Field(None, description="Komentar feedback")
+
+
 
 
 class FeedbackCreate(FeedbackBase):
@@ -31,8 +26,8 @@ class FeedbackCreate(FeedbackBase):
 
 
 class FeedbackUpdate(BaseModel):
-    """Schema untuk update data feedback"""
-    rating: RatingEnum | None = None
+    """Schema untuk update feedback"""
+    rating: int | None = Field(None, ge=1, le=5, description="Rating (1-5)")
     comment: str | None = None
 
 
@@ -42,4 +37,4 @@ class FeedbackResponse(FeedbackBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
