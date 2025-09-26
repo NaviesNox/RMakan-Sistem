@@ -37,7 +37,7 @@ def get_reservation(id: int, db: Session = Depends(get_db),
 def create_reservation(reservation: ReservationCreate, db: Session = Depends(get_db),
                         current_user: Users = Depends(get_current_user)
                        ):
-    return reservation_service.create_reservation(db, reservation, current_user)
+    return reservation_service.create_reservation(db, reservation)
 
 
 """ PUT /reservation/{id} = update reservasi berdasarkan ID """

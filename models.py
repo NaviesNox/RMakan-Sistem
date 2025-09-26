@@ -85,7 +85,7 @@ class Reservation(Base):
     reservation_time = Column(DateTime, nullable=False)
     guest_count = Column(Integer, nullable=False)
     notes = Column(String, nullable=True)
-    status = Column(reservation_status_enum, nullable=False)
+    status = Column(reservation_status_enum,  nullable=False, default="pending" )
     
     # Relationships
     meja = relationship("Meja", back_populates="reservations")

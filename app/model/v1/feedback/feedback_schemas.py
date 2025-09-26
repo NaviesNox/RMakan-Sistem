@@ -12,7 +12,7 @@ from datetime import datetime
 
 class FeedbackBase(BaseModel):
     """Schema dasar untuk Feedback"""
-    id_customer: int = Field(..., description="ID customer yang memberikan feedback")
+    id_users: int = Field(..., description="ID customer yang memberikan feedback")
     id_reservation: int = Field(..., description="ID reservasi terkait feedback")
     rating: int = Field(..., ge=1, le=5, description="Rating (1-5)")
     comment: str | None = Field(None, description="Komentar feedback")

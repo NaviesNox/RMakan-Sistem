@@ -11,10 +11,10 @@ from enum import Enum
 
 
 class ReservationStatusEnum(str, Enum):
-    pending = "Pending"
-    confirmed = "Confirmed"
-    cancelled = "Cancelled"
-    completed = "Completed"
+    pending = "pending"
+    confirmed = "confirmed"
+    cancelled = "cancelled"
+    completed = "completed"
 
 
 class ReservationBase(BaseModel):

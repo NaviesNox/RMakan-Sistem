@@ -17,9 +17,9 @@ class PaymentMethodEnum(str, Enum):
 
 
 class PaymentStatusEnum(str, Enum):
-    unpaid = "unpaid"
-    paid = "paid"
-    refunded = "refunded"
+    pending = "pending"
+    completed = "completed"
+    failed = "failed"
 
 
 class PaymentBase(BaseModel):
