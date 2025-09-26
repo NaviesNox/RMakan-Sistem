@@ -19,8 +19,8 @@ class ReservationStatusEnum(str, Enum):
 
 class ReservationBase(BaseModel):
     """Schema dasar untuk Reservation"""
-    id_customer: int = Field(..., description="ID Customer")
     id_meja: int = Field(..., description="ID Meja")
+    id_users: int = Field(..., description="ID Customer")
     reservation_time: datetime
     guest_count: int = Field(..., gt=0)
     notes: str | None = None

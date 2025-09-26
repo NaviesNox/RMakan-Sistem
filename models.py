@@ -1,31 +1,32 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum as SqlEnum, Float
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
 from app.core.database import Base
 from app.model.v1.meja.meja_schemas import LocationEnum, StatusEnum
 
-
-
 Base = declarative_base()
 metadata = Base.metadata
+# Definisikan ENUM global sekali
+role_enum = ENUM(
+    'admin', 'waiter', 'manager', 'reservationStaff', 'customer',
+    name='roleenum', create_type=True, metadata=Base.metadata
+)
 
-"""Model ORM dan schema untuk Customer """
-class Customer(Base):
-    __tablename__ = "customer"
+payment_method_enum = ENUM(
+    'cash', 'card', 'e_wallet',
+    name='paymentmethodenum', create_type=True, metadata=Base.metadata
+)
 
-    id_customer = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    username = Column(String(100), nullable=False)
-    password = Column(String(100), nullable=False)
-    email = Column(String(100), unique=True, nullable=False)
-    phone = Column(String(20), unique=True, nullable=False)
-    role = Column(String(20), nullable=False, server_default="customer")
-    created_at = Column(DateTime, server_default=func.now())
+payment_status_enum = ENUM(
+    'pending', 'completed', 'failed',
+    name='paymentstatusenum', create_type=True, metadata=Base.metadata
+)
 
-    # Relationships
-    reservations = relationship("Reservation", back_populates="customer")
-    feedback = relationship("Feedback", back_populates="customer")
+reservation_status_enum = ENUM(
+    'pending', 'confirmed', 'cancelled',
+    name='reservationstatusenum', create_type=True, metadata=Base.metadata
+)
 
 
 """Model ORM dan schema untuk Feedback """
@@ -33,16 +34,15 @@ class Feedback(Base):
     __tablename__ = "feedback"
 
     id = Column(Integer, primary_key=True, index=True)
-    id_customer = Column(Integer, ForeignKey("customer.id_customer"), nullable=False)
+    id_users= Column(Integer, ForeignKey("users.id"), nullable=False)
     id_reservation = Column(Integer, ForeignKey("reservation.id"), nullable=False)  
     rating = Column(Integer, nullable=False)
     comment = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
-    #Relations
-    customer = relationship("Customer", back_populates="feedback")
-    reservations = relationship("Reservation", back_populates="feedback")  
-
+    # Relations
+    user        = relationship("Users", back_populates="feedbacks")
+    reservation = relationship("Reservation", back_populates="feedback") 
 
 
 """Model ORM dan schema untuk Meja """
@@ -52,8 +52,8 @@ class Meja(Base):
     id = Column(Integer, primary_key=True, index=True)
     table_number = Column(Integer, unique=True, nullable=False)
     capacity = Column(Integer, nullable=False)
-    location = Column(SqlEnum(LocationEnum, name="location_enum"), nullable=False)
-    status = Column(SqlEnum(StatusEnum, name="status_enum"), nullable=False)
+    location = Column(ENUM(LocationEnum, name="location_enum", create_type=True, ), nullable=False)
+    status = Column(ENUM(StatusEnum, name="status_enum", create_type=True,), nullable=False)
 
     # Relationship
     reservations = relationship("Reservation", back_populates="meja")
@@ -66,60 +66,47 @@ class Payment(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_reservation = Column(Integer, ForeignKey("reservation.id"), nullable=False) 
     amount = Column(Float, nullable=False)
-    method = Column(
-        ENUM('cash', 'card', 'e_wallet', name='paymentmethodenum', create_type=False),
-        nullable=False
-    )
-    status = Column(
-        ENUM('pending', 'completed', 'failed', name='paymentstatusenum', create_type=False),
-        nullable=False
-    )
+    method = Column(payment_method_enum, nullable=False)
+    status = Column(payment_status_enum, nullable=False)
     transaction_time = Column(DateTime, nullable=False)
 
     # Relationships
     reservations = relationship("Reservation", back_populates="payment")
 
 
-
 """Model ORM dan schema untuk Reservation """
-
 class Reservation(Base):
     __tablename__ = "reservation"
 
-
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    id_customer = Column(Integer, ForeignKey("customer.id_customer"), nullable=False)
-    id_staff = Column(Integer, ForeignKey("staff.id"), nullable=True)  # bisa kosong dulu
+     
     id_meja = Column(Integer, ForeignKey("meja.id"), nullable=False)
+    id_users = Column(Integer, ForeignKey("users.id"), nullable=False)
     reservation_time = Column(DateTime, nullable=False)
     guest_count = Column(Integer, nullable=False)
     notes = Column(String, nullable=True)
-    status = Column(
-        ENUM('pending', 'confirmed', 'cancelled', name='reservationstatusenum', create_type=False),
-        nullable=False)
+    status = Column(reservation_status_enum, nullable=False)
     
     # Relationships
-    staff = relationship("Staff", back_populates="reservations")
     meja = relationship("Meja", back_populates="reservations")
-    customer = relationship("Customer", back_populates="reservations")
-    feedback = relationship("Feedback", back_populates="reservations", uselist=False)
     payment = relationship("Payment", back_populates="reservations")
+    user     = relationship("Users", back_populates="reservations")
+    feedback = relationship("Feedback", back_populates="reservation", uselist=False)
 
-"""Model ORM dan schema untuk Staff """
-class Staff(Base):
-    __tablename__ = "staff"
+
+"""Model ORM User """
+class Users(Base):
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=False)
     username = Column(String(100), nullable=False)
     password = Column(String(100), nullable=False)
-    role = Column(
-        ENUM('admin', 'waiter', 'manager', 'reservationStaff', name='roleenum', create_type=False),
-        nullable=False
-    )
+    role = Column(role_enum, nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
     phone = Column(String, nullable=False, unique=True)    
+    created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    reservations = relationship("Reservation", back_populates="staff")  
-
-
+    reservations = relationship("Reservation", back_populates="user")
+    feedbacks    = relationship("Feedback", back_populates="user")

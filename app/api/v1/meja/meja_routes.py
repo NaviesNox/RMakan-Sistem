@@ -7,6 +7,8 @@ from app.model.v1.meja.meja_schemas import (
     MejaResponse
     )
 from app.api.v1.meja import meja_service
+from models import Users
+from app.core.auth import get_current_admin
 
 router = APIRouter(tags=["Meja"])
 
@@ -28,22 +30,36 @@ def get_meja(id: int, db: Session = Depends(get_db)):
 
 """ POST /meja = tambah meja baru """
 @router.post("/", response_model=MejaResponse, status_code=201)
-def create_meja(meja: MejaCreate, db: Session = Depends(get_db)):
+def create_meja(
+    meja: MejaCreate,
+    db: Session = Depends(get_db),
+    current_admin: Users = Depends(get_current_admin)
+):
     return meja_service.create_meja(db, meja)
 
 
 """ PUT /meja/{id} = update meja """
 @router.put("/{id}", response_model=MejaResponse)
-def update_meja(id: int, meja: MejaUpdate, db: Session = Depends(get_db)):
+def update_meja(
+    id: int,
+    meja: MejaUpdate,
+    db: Session = Depends(get_db),
+    current_admin: Users = Depends(get_current_admin)
+):
     updated_meja = meja_service.update_meja(db, id, meja)
     if not updated_meja:
         raise HTTPException(status_code=404, detail="Meja tidak ditemukan")
     return updated_meja
 
 
+
 """ DELETE /meja/{id} = hapus meja """
 @router.delete("/{id}", response_model=MejaResponse)
-def delete_meja(id: int, db: Session = Depends(get_db)):
+def delete_meja(
+    id: int,
+    db: Session = Depends(get_db),
+    current_admin: Users = Depends(get_current_admin)   
+):
     deleted_meja = meja_service.delete_meja(db, id)
     if not deleted_meja:
         raise HTTPException(status_code=404, detail="Meja tidak ditemukan")

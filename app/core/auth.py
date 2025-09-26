@@ -1,26 +1,26 @@
+
 # app/core/auth.py
 
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status, APIRouter
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
-
+from models import Users
+from sqlalchemy.orm import Session
 from app.core.deps import get_db
-from app.api.v1.customer import customer_service
-from app.api.v1.staff import staff_service
-
+from dotenv import load_dotenv
+import os
 # ================= CONFIG =================
-SECRET_KEY = "$2b$12$eO0maVR9xWGY2c7aPfB0f.GbtLy6saBUJBAEQfiz3N9leR/5D5zgu"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 """ satu tempat login """
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
 # ================= SCHEMA =================
 class TokenData(BaseModel):
@@ -70,31 +70,23 @@ def require_role(*allowed_roles: str):
 
 
 """ ================= OPTIONAL HELPER ================= """
-def get_current_user(expected_role: Optional[str] = None, token_data: TokenData = Depends(verify_token)):
-    """
-    Bisa dipakai untuk cek role optional di route tertentu.
-    """
-    if expected_role and token_data.role != expected_role:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return token_data
+def get_current_user(
+    db: Session = Depends(get_db),
+    token_data: TokenData = Depends(verify_token)
+):
+    user = db.query(Users).filter(Users.id == token_data.user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    return user
 
 
-""" ================= UNIVERSAL LOGIN ================= """
-@router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    """
-    Universal login untuk Swagger (Customer & Staff).
-    """
-    # coba login sebagai customer
-    user = customer_service.authenticate_customer(db, form_data.username, form_data.password)
-    if user:
-        token = create_access_token({"user_id": user.id, "role": "customer"})
-        return {"access_token": token, "token_type": "bearer"}
-
-    # coba login sebagai staff
-    user = staff_service.authenticate_staff(db, form_data.username, form_data.password)
-    if user:
-        token = create_access_token({"user_id": user.id, "role": user.role})
-        return {"access_token": token, "token_type": "bearer"}
-
-    raise HTTPException(status_code=401, detail="Invalid username or password")
+def get_current_admin(current_user: Users = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya admin yang boleh mengakses"
+        )
+    return current_user
