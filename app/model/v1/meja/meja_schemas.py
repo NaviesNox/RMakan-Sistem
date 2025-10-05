@@ -46,5 +46,12 @@ class MejaResponse(MejaBase):
     """Schema response meja dari DB"""
     id: int
 
-    class Config:
+    class ConfigDict:
           from_attributes = True
+
+class MejaDeleteResponse(BaseModel):
+    detail: str
+    data: MejaResponse
+
+    class ConfigDict:
+        from_attributes = True

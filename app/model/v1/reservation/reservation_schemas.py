@@ -4,7 +4,7 @@ Reservation Schema
 Schema untuk entitas Reservation.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Field as json_schema_extra
 from datetime import datetime
 from enum import Enum  
 
@@ -20,7 +20,7 @@ class ReservationStatusEnum(str, Enum):
 class ReservationBase(BaseModel):
     """Schema dasar untuk Reservation"""
     id_meja: int = Field(..., description="ID Meja")
-    id_users: int = Field(..., description="ID Customer")
+    id_user: int = Field(..., description="ID Customer")
     reservation_time: datetime
     guest_count: int = Field(..., gt=0)
     notes: str | None = None
@@ -47,5 +47,5 @@ class ReservationResponse(ReservationBase):
     status: ReservationStatusEnum
     id_staff: int | None = None
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

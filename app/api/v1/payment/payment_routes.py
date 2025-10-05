@@ -42,7 +42,7 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db),
 
 
 """ PUT /payment/{id} = update pembayaran """
-@router.put("/{id}", response_model=PaymentResponse)
+@router.patch("/{id}", response_model=PaymentResponse)
 def update_payment(id: int, payment: PaymentUpdate, db: Session = Depends(get_db),
                    current_admin: Users = Depends(get_current_admin)
                    ):

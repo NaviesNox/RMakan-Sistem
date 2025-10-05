@@ -4,7 +4,8 @@ from app.core.deps import get_db
 from app.model.v1.meja.meja_schemas import (
     MejaCreate,
     MejaUpdate,
-    MejaResponse
+    MejaResponse,
+    MejaDeleteResponse as DeleteMejaResponse
     )
 from app.api.v1.meja import meja_service
 from models import Users
@@ -39,7 +40,7 @@ def create_meja(
 
 
 """ PUT /meja/{id} = update meja """
-@router.put("/{id}", response_model=MejaResponse)
+@router.patch("/{id}", response_model=MejaResponse)
 def update_meja(
     id: int,
     meja: MejaUpdate,
@@ -54,13 +55,13 @@ def update_meja(
 
 
 """ DELETE /meja/{id} = hapus meja """
-@router.delete("/{id}", response_model=MejaResponse)
-def delete_meja(
-    id: int,
-    db: Session = Depends(get_db),
-    current_admin: Users = Depends(get_current_admin)   
-):
-    deleted_meja = meja_service.delete_meja(db, id)
-    if not deleted_meja:
-        raise HTTPException(status_code=404, detail="Meja tidak ditemukan")
-    return deleted_meja
+@router.delete("/{id}", response_model=DeleteMejaResponse)
+def delete_meja(id: int, db: Session = Depends(get_db),
+                current_admin: Users = Depends(get_current_admin)):
+    deleted_meja = meja_service.delete_and_return_meja(db, id)
+    if deleted_meja:
+        return {
+            "detail": "Meja deleted successfully",
+            "data": deleted_meja
+        }
+    raise HTTPException(status_code=404, detail="Meja tidak ditemukan")

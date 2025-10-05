@@ -25,7 +25,7 @@ class PaymentStatusEnum(str, Enum):
 class PaymentBase(BaseModel):
     """Schema dasar untuk Payment"""
     id_reservation: int
-    amount: float = Field(..., gt=0)
+    amount: float 
     method: PaymentMethodEnum
     status: PaymentStatusEnum
     transaction_time: datetime
@@ -49,5 +49,5 @@ class PaymentResponse(PaymentBase):
     """Schema response payment dari DB"""
     id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

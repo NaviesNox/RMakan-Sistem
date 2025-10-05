@@ -46,7 +46,7 @@ def update_meja(db: Session, meja_id: int, meja_update: MejaUpdate):
     return meja
 
 
-def delete_meja(db: Session, meja_id: int):
+def delete_and_return_meja(db: Session, meja_id: int):
     """Function untuk menghapus meja"""
     meja = get_meja_by_id(db, meja_id)
     if not meja:

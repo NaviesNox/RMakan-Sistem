@@ -72,11 +72,12 @@ def update_users(db: Session, users_id: int, users_update: UsersUpdate):
 
 
 """ Function untuk hapus data user """
-def delete_users(db: Session, users_id: int):
-    users = get_users_by_id(db, users_id)
-    if not users:
+def delete_and_return_user(db: Session, user_id: int):
+    user = db.query(Users).filter(Users.id == user_id).first()
+    if not user:
         return None
-
-    db.delete(users)
+    # simpan dulu datanya
+    deleted_user = user
+    db.delete(user)
     db.commit()
-    return users
+    return deleted_user

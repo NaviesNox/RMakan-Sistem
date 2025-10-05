@@ -39,7 +39,7 @@ def create_feedback(feedback: FeedbackCreate, db: Session = Depends(get_db),
 
 
 """ PUT /feedback/{id} = update feedback """
-@router.put("/{id}", response_model=FeedbackResponse)
+@router.patch("/{id}", response_model=FeedbackResponse)
 def update_feedback(id: int, feedback: FeedbackUpdate, db: Session = Depends(get_db),
                     current_user: Users =Depends(get_current_user)
                     ):

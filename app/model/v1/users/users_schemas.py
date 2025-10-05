@@ -23,12 +23,12 @@ class RoleEnum(str, Enum):
 
 class UsersBase(BaseModel):
     """Schema dasar untuk User"""
-    name: str = Field(..., example="Budi")
+    name: str = Field(..., json_schema_extra="Budi")
     username: str 
     password: str
     role: RoleEnum
     email: EmailStr = Field(..., description="Email unik customer")
-    phone: str = Field(..., example="08123456789")
+    phone: str = Field(..., json_schema_extra="08123456789")
 
 
 class UsersCreate(UsersBase):
@@ -36,20 +36,20 @@ class UsersCreate(UsersBase):
     pass
 
 class RegisterCreate (BaseModel):
-    name: str = Field(..., example="Budi")
+    name: str = Field(..., json_schema_extra="Budi")
     username: str 
     password: str 
     email: EmailStr = Field(..., description="Email unik customer")
-    phone: str = Field(..., example="08123456789")
+    phone: str = Field(..., json_schema_extra="08123456789")
 
 """=============================================================================="""
 class UsersUpdate(BaseModel):
     """Schema untuk update data staff"""
     name: Optional[str] | None = None
     username: Optional[str] | None = None
-    passsword:Optional [str] | None = None
+    password:Optional [str] | None = None
     role: RoleEnum | None = None
-    email: Optional [str]
+    email: Optional [str] = None
     phone: Optional [str] | None = None
 
 
@@ -58,6 +58,9 @@ class UsersResponse(UsersBase):
     id: int
     created_at: datetime
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
+class DeleteUserResponse(BaseModel):
+    detail: str
+    data: UsersResponse

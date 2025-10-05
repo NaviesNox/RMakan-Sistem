@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.dialects.postgresql import ENUM
 from app.core.database import Base
 from app.model.v1.meja.meja_schemas import LocationEnum, StatusEnum
@@ -81,16 +80,26 @@ class Reservation(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
      
     id_meja = Column(Integer, ForeignKey("meja.id"), nullable=False)
-    id_users = Column(Integer, ForeignKey("users.id"), nullable=False)
+    id_user = Column(Integer, ForeignKey("users.id"), nullable=False)
     reservation_time = Column(DateTime, nullable=False)
     guest_count = Column(Integer, nullable=False)
     notes = Column(String, nullable=True)
     status = Column(reservation_status_enum,  nullable=False, default="pending" )
+    id_staff = Column(Integer, ForeignKey("users.id"), nullable=True)
     
     # Relationships
     meja = relationship("Meja", back_populates="reservations")
     payment = relationship("Payment", back_populates="reservations")
-    user     = relationship("Users", back_populates="reservations")
+    customer = relationship(
+        "Users",
+        foreign_keys=[id_user],
+        back_populates="reservations_as_customer"
+    )
+    staff = relationship(
+        "Users",
+        foreign_keys=[id_staff],
+        back_populates="reservations_as_staff"
+    )
     feedback = relationship("Feedback", back_populates="reservation", uselist=False)
 
 
@@ -108,5 +117,14 @@ class Users(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    reservations = relationship("Reservation", back_populates="user")
+    reservations_as_customer = relationship(
+        "Reservation",
+        foreign_keys="[Reservation.id_user]",
+        back_populates="customer"
+    )
+    reservations_as_staff = relationship(
+        "Reservation",
+        foreign_keys="[Reservation.id_staff]",
+        back_populates="staff"
+    )
     feedbacks    = relationship("Feedback", back_populates="user")

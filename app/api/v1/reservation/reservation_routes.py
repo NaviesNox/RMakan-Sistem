@@ -41,7 +41,7 @@ def create_reservation(reservation: ReservationCreate, db: Session = Depends(get
 
 
 """ PUT /reservation/{id} = update reservasi berdasarkan ID """
-@router.put("/{id}", response_model=ReservationResponse)
+@router.patch("/{id}", response_model=ReservationResponse)
 def update_reservation(id: int, reservation: ReservationUpdate, db: Session = Depends(get_db),
                        current_admin: Users = Depends(get_current_admin)
                        ):

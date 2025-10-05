@@ -36,5 +36,5 @@ class FeedbackResponse(FeedbackBase):
     id: int
     created_at: datetime
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

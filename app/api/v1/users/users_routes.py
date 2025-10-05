@@ -3,10 +3,12 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_db
 from app.model.v1.users.users_schemas import  UsersCreate,  UsersUpdate,  UsersResponse
 from app.api.v1.users import users_service
+from app.model.v1.users.users_schemas import DeleteUserResponse
 from models import Users
 from app.core.auth import get_current_user, get_current_admin
 
 router = APIRouter( tags=["User"])
+
 
 
 """ GET /user = daftar user """
@@ -22,7 +24,7 @@ def get_profile(current_user: Users = Depends(get_current_user)):
 
 
 
-@router.put("/profile/", response_model=UsersResponse)
+@router.patch("/profile/", response_model=UsersResponse)
 def update_profile(users_update: UsersUpdate, db: Session= Depends(get_db), current_user: Users = Depends(get_current_user)):
     updated_users = users_service.update_users(db, current_user.id, users_update)
     if not updated_users:
@@ -54,7 +56,7 @@ def create_users(users: UsersCreate, db: Session = Depends(get_db),
 
 
 """ PUT /user/{id} = update user"""
-@router.put("/{id}", response_model=UsersResponse)
+@router.patch("/{id}", response_model=UsersResponse)
 def update_users(id: int, users: UsersUpdate, db: Session = Depends(get_db),
                  current_admin: Users = Depends(get_current_admin)
                  ):
@@ -65,13 +67,13 @@ def update_users(id: int, users: UsersUpdate, db: Session = Depends(get_db),
 
 
 
-"""DELETE /user/{id} = hapus user"""
-@router.delete("/{id}", response_model=UsersResponse)
+@router.delete("/{id}", response_model=DeleteUserResponse)
 def delete_users(id: int, db: Session = Depends(get_db),
-                 current_admin: Users= Depends(get_current_admin)
-                 ):
-    deleted_users = users_service.delete_users(db, id)
-    if not deleted_users:
-        raise HTTPException(status_code=404, detail="User tidak ditemukan")
-    return deleted_users
-
+                 current_admin: Users = Depends(get_current_admin)):
+    deleted_user = users_service.delete_and_return_user(db, id)
+    if deleted_user:
+        return {
+            "detail": "User deleted successfully",
+            "data": deleted_user
+        }
+    raise HTTPException(status_code=404, detail="User tidak ditemukan")
