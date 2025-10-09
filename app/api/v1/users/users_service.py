@@ -63,6 +63,10 @@ def update_users(db: Session, users_id: int, users_update: UsersUpdate):
         return None
 
     update_data = users_update.model_dump(exclude_unset=True)
+
+    if "password" in  update_data is not None:
+        update_data["password"] = hash_password(update_data["password"])
+
     for key, value in update_data.items():
         setattr(users, key, value)
 

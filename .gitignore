@@ -1,2 +1,4 @@
 .venv-Rmakan/
+.venv/
 .env
+__pycache__/
