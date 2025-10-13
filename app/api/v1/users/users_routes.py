@@ -18,7 +18,7 @@ def list_users(db: Session = Depends(get_db),
                ):
     return users_service.get_all_users(db)
 """=============================PROFILE TERITORI====================================="""
-@router.get("/profile", response_model=UsersResponse)
+@router.get("/profile/", response_model=UsersResponse)
 def get_profile(current_user: Users = Depends(get_current_user)):
     return current_user
 

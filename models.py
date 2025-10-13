@@ -23,7 +23,7 @@ payment_status_enum = ENUM(
 )
 
 reservation_status_enum = ENUM(
-    'pending', 'confirmed', 'cancelled',
+    'pending', 'confirmed', 'cancelled', 'completed',
     name='reservationstatusenum', create_type=True, metadata=Base.metadata
 )
 

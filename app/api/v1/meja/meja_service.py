@@ -10,6 +10,15 @@ def get_all_meja(db: Session):
     """Service functions untuk meja"""
     return db.query(Meja).all()
 
+def get_available_meja(db: Session):
+    """Service function untuk mendapatkan semua meja yang statusnya tersedia"""
+    """Jika tidak ada meja yang tersedia, return massage "saat ini tidak ada meja yang tersedia" """
+    if not db.query(Meja).filter(Meja.status == 'tersedia').all():
+        return "Saat ini tidak ada meja yang tersedia"
+    return db.query(Meja).filter(Meja.status == 'tersedia').all()
+   
+    
+
 
 def get_meja_by_id(db: Session, meja_id: int):
     """Helper function untuk mendapatkan meja berdasarkan ID"""
