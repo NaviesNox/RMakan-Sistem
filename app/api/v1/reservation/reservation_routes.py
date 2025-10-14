@@ -8,7 +8,7 @@ from app.model.v1.reservation.reservation_schemas import (
     ReservationResponse
 )
 from app.api.v1.reservation import reservation_service
-from app.core.auth import get_current_admin, get_current_user
+from app.core.auth import get_current_admin, get_current_user, get_current_reservationStaff
 
 router = APIRouter(tags=["Reservation"])
 
@@ -16,7 +16,7 @@ router = APIRouter(tags=["Reservation"])
 """ GET /reservation = semua reservasi """
 @router.get("/", response_model=list[ReservationResponse])
 def list_reservations(db: Session = Depends(get_db),
-                      current_admin: Users =Depends(get_current_admin)
+                      current_Rstaff: Users =Depends(get_current_reservationStaff)
                       ):
     return reservation_service.get_all_reservations(db)
 
@@ -24,13 +24,26 @@ def list_reservations(db: Session = Depends(get_db),
 """ GET /reservation/{id} = detail reservasi berdasarkan ID """
 @router.get("/{id}", response_model=ReservationResponse)
 def get_reservation(id: int, db: Session = Depends(get_db),
-                    current_admin: Users= Depends(get_current_admin)
+                    current_Rstaff: Users =Depends(get_current_reservationStaff)
                     ):
     reservation = reservation_service.get_reservation_by_id(db, id)
     if not reservation:
         raise HTTPException(status_code=404, detail="Reservation tidak ditemukan")
     return reservation
 
+"""Get reservation berdasarkan user yang login"""
+@router.get("/me/", response_model=list[ReservationResponse])
+def get_my_reservations(db: Session = Depends(get_db),
+                        current_user: Users = Depends(get_current_user)
+                       ):
+    return reservation_service.get_reservations_by_user(db, current_user.id)
+
+"""Get reservation berdasarkan status completed"""
+@router.get("/status/{status}", response_model=list[ReservationResponse])
+def get_reservations_by_status(status: str, db: Session = Depends(get_db),
+                        current_admin: Users = Depends(get_current_admin)
+                       ):
+    return reservation_service.get_reservations_by_status(db, status)
 
 """ POST /reservation = buat reservasi baru """
 @router.post("/", response_model=ReservationResponse, status_code=201)
@@ -43,7 +56,7 @@ def create_reservation(reservation: ReservationCreate, db: Session = Depends(get
 """ PUT /reservation/{id} = update reservasi berdasarkan ID """
 @router.patch("/{id}", response_model=ReservationResponse)
 def update_reservation(id: int, reservation: ReservationUpdate, db: Session = Depends(get_db),
-                       current_admin: Users = Depends(get_current_admin)
+                       current_Rstaff: Users =Depends(get_current_reservationStaff)
                        ):
     updated_reservation = reservation_service.update_reservation(db, id, reservation)
     if not updated_reservation:
@@ -54,7 +67,7 @@ def update_reservation(id: int, reservation: ReservationUpdate, db: Session = De
 """ DELETE /reservation/{id} = hapus reservasi """
 @router.delete("/{id}", response_model=ReservationResponse)
 def delete_reservation(id: int, db: Session = Depends(get_db),
-                       current_admin: Users = Depends(get_current_admin)
+                       current_Rstaff: Users =Depends(get_current_reservationStaff)
                        ):
     deleted_reservation = reservation_service.delete_reservation(db, id)
     if not deleted_reservation:

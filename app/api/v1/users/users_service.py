@@ -4,6 +4,7 @@ from app.model.v1.users.users_schemas import (
     UsersUpdate,
     RegisterCreate
 )
+from sqlalchemy.dialects.postgresql import UUID
 from models import Users
 from app.core.security import hash_password
 from passlib.context import CryptContext
@@ -28,7 +29,7 @@ def get_all_users(db: Session):
 
 
 """ Function untuk ambil data user berdasarkan ID """
-def get_users_by_id(db: Session, users_id: int):
+def get_users_by_id(db: Session, users_id: UUID):
     return db.query(Users).filter(Users.id == users_id).first()
 
 
@@ -57,7 +58,7 @@ def create_register(db: Session, users: RegisterCreate):
     """===================================================================================="""
     
 """ Function untuk update data user """
-def update_users(db: Session, users_id: int, users_update: UsersUpdate):
+def update_users(db: Session, users_id: UUID, users_update: UsersUpdate):
     users = get_users_by_id(db, users_id)
     if not users:
         return None
@@ -76,7 +77,7 @@ def update_users(db: Session, users_id: int, users_update: UsersUpdate):
 
 
 """ Function untuk hapus data user """
-def delete_and_return_user(db: Session, user_id: int):
+def delete_and_return_user(db: Session, user_id: UUID):
     user = db.query(Users).filter(Users.id == user_id).first()
     if not user:
         return None

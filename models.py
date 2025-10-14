@@ -1,8 +1,10 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Float
-from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy.dialects.postgresql import ENUM
+import uuid
 from app.core.database import Base
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.orm import relationship, declarative_base
 from app.model.v1.meja.meja_schemas import LocationEnum, StatusEnum
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Float
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -33,7 +35,7 @@ class Feedback(Base):
     __tablename__ = "feedback"
 
     id = Column(Integer, primary_key=True, index=True)
-    id_users= Column(Integer, ForeignKey("users.id"), nullable=False)
+    id_users= Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     id_reservation = Column(Integer, ForeignKey("reservation.id"), nullable=False)  
     rating = Column(Integer, nullable=False)
     comment = Column(String, nullable=True)
@@ -49,7 +51,7 @@ class Meja(Base):
     __tablename__ = "meja"
 
     id = Column(Integer, primary_key=True, index=True)
-    table_number = Column(Integer, unique=True, nullable=False)
+    kode_meja = Column(String, unique=True, nullable=False)
     capacity = Column(Integer, nullable=False)
     location = Column(ENUM(LocationEnum, name="location_enum", create_type=True, ), nullable=False)
     status = Column(ENUM(StatusEnum, name="status_enum", create_type=True,), nullable=False)
@@ -80,12 +82,12 @@ class Reservation(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
      
     id_meja = Column(Integer, ForeignKey("meja.id"), nullable=False)
-    id_user = Column(Integer, ForeignKey("users.id"), nullable=False)
+    id_user = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     reservation_time = Column(DateTime, nullable=False)
     guest_count = Column(Integer, nullable=False)
     notes = Column(String, nullable=True)
     status = Column(reservation_status_enum,  nullable=False, default="pending" )
-    id_staff = Column(Integer, ForeignKey("users.id"), nullable=True)
+    id_staff = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     
     # Relationships
     meja = relationship("Meja", back_populates="reservations")
@@ -107,7 +109,7 @@ class Reservation(Base):
 class Users(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     username = Column(String(100), nullable=False)
     password = Column(String(100), nullable=False)

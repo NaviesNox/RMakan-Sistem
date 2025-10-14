@@ -9,7 +9,7 @@ from app.model.v1.meja.meja_schemas import (
     )
 from app.api.v1.meja import meja_service
 from models import Users
-from app.core.auth import get_current_admin
+from app.core.auth import get_current_admin , get_current_manager, get_current_petugas
 
 router = APIRouter(tags=["Meja"])
 
@@ -39,7 +39,7 @@ def get_meja(id: int, db: Session = Depends(get_db)):
 def create_meja(
     meja: MejaCreate,
     db: Session = Depends(get_db),
-    current_admin: Users = Depends(get_current_admin)
+    current_manager : Users = Depends(get_current_manager)
 ):
     return meja_service.create_meja(db, meja)
 
@@ -50,7 +50,7 @@ def update_meja(
     id: int,
     meja: MejaUpdate,
     db: Session = Depends(get_db),
-    current_admin: Users = Depends(get_current_admin)
+    current_petugas: Users = Depends(get_current_petugas)
 ):
     updated_meja = meja_service.update_meja(db, id, meja)
     if not updated_meja:
@@ -62,7 +62,7 @@ def update_meja(
 """ DELETE /meja/{id} = hapus meja """
 @router.delete("/{id}", response_model=DeleteMejaResponse)
 def delete_meja(id: int, db: Session = Depends(get_db),
-                current_admin: Users = Depends(get_current_admin)):
+                current_manager: Users = Depends(get_current_manager)):
     deleted_meja = meja_service.delete_and_return_meja(db, id)
     if deleted_meja:
         return {

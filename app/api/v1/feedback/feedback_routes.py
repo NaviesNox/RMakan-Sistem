@@ -1,5 +1,5 @@
 from models import Users
-from app.core.auth import get_current_admin, get_current_user
+from app.core.auth import get_current_admin, get_current_user, get_current_petugas
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.core.deps import get_db
@@ -22,7 +22,7 @@ def list_feedback(db: Session = Depends(get_db)):
 """ GET /feedback/{id} = detail feedback """
 @router.get("/{id}", response_model=FeedbackResponse)
 def get_feedback(id: int, db: Session = Depends(get_db),
-                 current_admin: Users = Depends(get_current_admin)
+                 current_petugas = Depends(get_current_petugas)
                  ):
     feedback = feedback_service.get_feedback_by_id(db, id)
     if not feedback:
@@ -38,14 +38,14 @@ def create_feedback(feedback: FeedbackCreate, db: Session = Depends(get_db),
     return feedback_service.create_feedback(db, feedback)
 
 
-""" PUT /feedback/{id} = update feedback """
-@router.patch("/{id}", response_model=FeedbackResponse)
-def update_feedback(id: int, feedback: FeedbackUpdate, db: Session = Depends(get_db),
-                    current_user: Users =Depends(get_current_user)
+""" PUT /feedback/{id} = update feedback berdasarkan feedback orang yg login """
+@router.put("/{id}", response_model=FeedbackResponse)
+def update_feedback(id: int, feedback_update: FeedbackUpdate, db: Session = Depends(get_db),
+                    current_user: Users = Depends(get_current_user)
                     ):
-    updated_feedback = feedback_service.update_feedback(db, id, feedback)
+    updated_feedback = feedback_service.update_feedback(db, id, feedback_update, current_user.id)
     if not updated_feedback:
-        raise HTTPException(status_code=404, detail="Feedback tidak ditemukan")
+        raise HTTPException(status_code=404, detail="Feedback tidak ditemukan atau Anda tidak memiliki izin untuk memperbarui feedback ini")
     return updated_feedback
 
 

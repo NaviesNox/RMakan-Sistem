@@ -5,7 +5,8 @@ from app.model.v1.users.users_schemas import  UsersCreate,  UsersUpdate,  UsersR
 from app.api.v1.users import users_service
 from app.model.v1.users.users_schemas import DeleteUserResponse
 from models import Users
-from app.core.auth import get_current_user, get_current_admin
+from app.core.auth import get_current_user, get_current_admin, get_current_manager, get_current_petugas, get_current_reservationStaff
+from uuid import UUID
 
 router = APIRouter( tags=["User"])
 
@@ -14,7 +15,7 @@ router = APIRouter( tags=["User"])
 """ GET /user = daftar user """
 @router.get("/", response_model=list[UsersResponse])
 def list_users(db: Session = Depends(get_db),
-               current_admin: Users = Depends(get_current_admin)
+               user: Users = Depends(get_current_manager)
                ):
     return users_service.get_all_users(db)
 """=============================PROFILE TERITORI====================================="""
@@ -35,10 +36,10 @@ def update_profile(users_update: UsersUpdate, db: Session= Depends(get_db), curr
 
 
 
-""" GET /user/{id} = detail user """
-@router.get("/{id}", response_model=UsersResponse)
-def get_users(id: int, db: Session = Depends(get_db),
-              current_admin: Users= Depends(get_current_admin)
+""" GET /user/{uuid} = detail user """
+@router.get("/{uuid}", response_model=UsersResponse)
+def get_users(id:UUID, db: Session = Depends(get_db),
+              current_manager: Users= Depends(get_current_manager)
               ):
     users = users_service.get_users_by_id(db, id)
     if not users:
@@ -55,9 +56,9 @@ def create_users(users: UsersCreate, db: Session = Depends(get_db),
 
 
 
-""" PUT /user/{id} = update user"""
-@router.patch("/{id}", response_model=UsersResponse)
-def update_users(id: int, users: UsersUpdate, db: Session = Depends(get_db),
+""" PUT /user/{uuid} = update user"""
+@router.patch("/{uuid}", response_model=UsersResponse)
+def update_users(id: UUID, users: UsersUpdate, db: Session = Depends(get_db),
                  current_admin: Users = Depends(get_current_admin)
                  ):
     updated_users = users_service.update_users(db, id, users)
@@ -67,8 +68,8 @@ def update_users(id: int, users: UsersUpdate, db: Session = Depends(get_db),
 
 
 
-@router.delete("/{id}", response_model=DeleteUserResponse)
-def delete_users(id: int, db: Session = Depends(get_db),
+@router.delete("/{uuid}", response_model=DeleteUserResponse)
+def delete_users(id: UUID, db: Session = Depends(get_db),
                  current_admin: Users = Depends(get_current_admin)):
     deleted_user = users_service.delete_and_return_user(db, id)
     if deleted_user:

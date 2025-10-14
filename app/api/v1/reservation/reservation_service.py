@@ -15,6 +15,14 @@ def get_all_reservations(db: Session):
 def get_reservation_by_id(db: Session, reservation_id: int):
     return db.query(Reservation).filter(Reservation.id == reservation_id).first()
 
+""" Fungsi untuk mengambil reservasi berdasarkan user yg login"""
+def get_reservations_by_user(db: Session, user_id: int):
+    return db.query(Reservation).filter(Reservation.id_user == user_id).all()
+
+"""Fungsi untuk mengambil reservasi berdasarkan status """
+def get_reservations_by_status(db: Session, status: str):
+    return db.query(Reservation).filter(Reservation.status == status).all() 
+
 
 """ Fungsi untuk membuat reservasi baru """
 def create_reservation(db: Session, reservation: ReservationCreate):

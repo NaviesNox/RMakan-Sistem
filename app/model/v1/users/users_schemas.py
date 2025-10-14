@@ -3,7 +3,7 @@ Staff Schema
 ------------
 Schema untuk entitas USER.
 """
-
+from uuid import UUID
 from pydantic import BaseModel, Field, EmailStr
 from enum import Enum 
 from typing import Optional
@@ -17,7 +17,7 @@ class RoleEnum(str, Enum):
     admin = "admin"
     waiter = "waiter"
     manager = "manager"
-    reservationstaff = "reservationstaff"
+    reservationstaff = "reservationStaff"
 
 
 
@@ -55,7 +55,7 @@ class UsersUpdate(BaseModel):
 
 class UsersResponse(UsersBase):
     """Schema response user dari DB"""
-    id: int
+    id: UUID
     created_at: datetime
 
     class ConfigDict:
