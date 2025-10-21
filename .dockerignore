@@ -1,0 +1,12 @@
+.env
+.venv
+.venv-Rmakan2
+__pycache__/
+*.pyc
+instance
+.env.test
+docker-compose.override.yml
+.dockerignore
+.git
+.gitignore
+tests/

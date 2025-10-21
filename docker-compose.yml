@@ -1,0 +1,38 @@
+# Gunakan versi schema Compose 3.9 (stabil untuk Docker Compose modern)
+version: "3.9"
+
+services:
+  # Service utama aplikasi (misal FastAPI)
+  app:
+    # Membangun image dari Dockerfile di direktori saat ini (.)
+    build: .
+    
+    # Mapping port host:container → akses via http://localhost:8000
+    ports:
+      - "8000:8000"
+
+    # Memuat variabel lingkungan dari file .env (tidak disimpan di repo publik)
+    env_file: .env
+
+    # Jika container berhenti tiba-tiba, akan otomatis dijalankan ulang
+    restart: unless-stopped
+
+    # Mengecek kesehatan aplikasi secara berkala
+    # Docker menandai container “unhealthy” jika endpoint tidak merespons
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s     # jeda antar pengecekan
+      timeout: 5s       # waktu tunggu tiap request
+      retries: 3        # percobaan sebelum dianggap gagal
+
+    # Konfigurasi logging: batasi ukuran log agar tidak memenuhi disk
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"  # maksimum 10 MB per file log
+        max-file: "3"    # simpan maksimal 3 file log lama
+
+# Volume global untuk penyimpanan persisten (misal database)
+# Saat ini belum dipakai oleh app, tapi disiapkan untuk pengembangan selanjutnya
+volumes:
+  postgres_data:

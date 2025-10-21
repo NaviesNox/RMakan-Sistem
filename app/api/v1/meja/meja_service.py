@@ -20,9 +20,9 @@ def get_available_meja(db: Session):
     
 
 
-def get_meja_by_id(db: Session, meja_id: int):
-    """Helper function untuk mendapatkan meja berdasarkan ID"""
-    return db.query(Meja).filter(Meja.id == meja_id).first()
+def get_meja_by_kode_meja(db: Session, kode_meja: str):
+    """Helper function untuk mendapatkan meja berdasarkan kode_meja"""
+    return db.query(Meja).filter(Meja.kode_meja == kode_meja).first()
 
 
 def create_meja(db: Session, meja: MejaCreate):
@@ -30,19 +30,19 @@ def create_meja(db: Session, meja: MejaCreate):
     new_meja = Meja(**meja.model_dump())
     db.add(new_meja)
 
-    """ check apakah table number yang diinput sudah ada atau belum, jika sudah ada maka return pesan "table number sudah ada" """
-    existing_meja = db.query(Meja).filter(Meja.table_number == meja.table_number).first()
+    """ check apakah kode meja yang diinput sudah ada atau belum, jika sudah ada maka return pesan "table number sudah ada" """
+    existing_meja = db.query(Meja).filter(Meja.kode_meja == meja.kode_meja).first()
     if existing_meja:
-        raise ValueError("Table number sudah ada")
+        raise ValueError("Kode Meja sudah ada")
 
     db.commit()
     db.refresh(new_meja)
     return new_meja
 
 
-def update_meja(db: Session, meja_id: int, meja_update: MejaUpdate):
+def update_meja(db: Session, kode_meja: str, meja_update: MejaUpdate):
     """Function untuk mengupdate data meja"""
-    meja = get_meja_by_id(db, meja_id)
+    meja = get_meja_by_kode_meja(db, kode_meja)
     if not meja:
         return None
 
@@ -55,9 +55,9 @@ def update_meja(db: Session, meja_id: int, meja_update: MejaUpdate):
     return meja
 
 
-def delete_and_return_meja(db: Session, meja_id: int):
+def delete_and_return_meja(db: Session, kode_meja: str):
     """Function untuk menghapus meja"""
-    meja = get_meja_by_id(db, meja_id)
+    meja = get_meja_by_kode_meja(db, kode_meja)
     if not meja:
         return None
 
